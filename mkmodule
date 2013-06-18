@@ -1,0 +1,116 @@
+#!/bin/sh 
+
+process_fields()
+{
+    cat $HOME/tools/assets/zend_module_form_fieldset_field.php | sed -E "s/\#NAME\#/$3/g" | sed -E "s/\#type\#/text/g"  >> $1/src/$1/Form/${2}Fieldset.php
+}
+
+export -f process_fields
+
+process_validation()
+{
+    cat $HOME/tools/assets/zend_module_form_fieldset_validation.php | sed -E "s/\#NAME\#/$3/g"  >> $1/src/$1/Form/${2}Fieldset.php
+}
+
+export -f process_validation 
+
+if [ "$1" == '-h' ]; 
+then
+    echo "ckmodule ModuleName";
+    exit 1;  
+fi;
+
+view=$(echo $1 | tr "[:upper:]" "[:lower:]")
+
+echo "Deseja criar as pastas?[s/n]";
+read c;
+if [ "$c" == "s" ]; 
+then  
+    mkdir -p $1/{src/$1/Controller,src/$1/Model,src/$1/Form,config,view/$view}
+fi;
+
+echo "Deseja criar os arquivos de configuração?[s/n]";
+read c;
+if [ "$c" == "s" ]; 
+then  
+    cat $HOME/tools/assets/zend_module.php | sed -E "s/\#NAME\#/$1/g" > $1/Module.php
+    cat $HOME/tools/assets/zend_module_config.php | sed -E "s/\#name\#/$view/g" > $1/config/module.config.php
+fi;
+
+i=0;
+while [ "$i" == "0" ];
+do 
+    echo "Deseja criar o MVC?[s/n]";
+    read option;
+    if [ "$option" == 'n' ]; 
+    then
+        exit 1;  
+    fi;
+
+    echo "Qual o nome das Classes?"
+    read name;
+    f=`echo "${name:0:1}" | tr "[:upper:]" "[:lower:]"`; 
+    area=`echo "${f}${name:1}"`;  
+
+    echo "Qual o nome do db";
+    read db;  
+    
+    echo "Qual o nome da table(sem prefixo)";
+    read table;
+
+    echo "Deseja criar o Controller?[s/n]";
+    read c;
+    if [ "$c" == "s" ]; 
+    then
+        cat $HOME/tools/assets/zend_module_controller.php | sed -E "s/\#NAME\#/$1/g" | sed -E "s/\#name\#/$view/g" | sed -E "s/\#CONTROLLER\#/$name/g" | sed -E "s/\#AREA\#/$area/g"  > $1/src/$1/Controller/${name}Controller.php
+        mysql -uroot -p123456 -e "SELECT COLUMN_NAME as '' FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'cms_$table' AND table_schema = '$db'" INFORMATION_SCHEMA --batch |xargs -I {} echo "         '{}' => '{}'," >> $1/src/$1/Controller/${name}Controller.php
+        echo "  );" >> $1/src/$1/Controller/${name}Controller.php
+        echo "}" >> $1/src/$1/Controller/${name}Controller.php
+    fi;
+
+    
+    echo "Deseja criar o Model?[s/n]";
+    read c;
+    if [ "$c" == "s" ]; 
+    then
+        cat $HOME/tools/assets/zend_module_model.php | sed -E "s/\#NAME\#/$1/g" | sed -E "s/\#MODEL\#/$name/g"  > $1/src/$1/Model/${name}.php
+        cat $HOME/tools/assets/zend_module_model_table.php | sed -E "s/\#NAME\#/$1/g" | sed -E "s/\#MODEL\#/$name/g" | sed -E "s/\#table\#/$table/g" > $1/src/$1/Model/${name}Table.php
+        mysql -uroot -p123456 -e "SELECT COLUMN_NAME as '' FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'cms_$table' AND table_schema = '$db'" INFORMATION_SCHEMA --batch |xargs -I {} echo "         '{}'," >> $1/src/$1/Model/${name}Table.php
+        echo "  );" >> $1/src/$1/Model/${name}Table.php
+        echo "}" >> $1/src/$1/Model/${name}Table.php
+    fi;
+
+    echo "Deseja criar o Form?[s/n]";
+    read c;
+    if [ "$c" == "s" ]; 
+    then
+        cat $HOME/tools/assets/zend_module_form.php | sed -E "s/\#NAME\#/$1/g" | sed -E "s/\#FORM\#/$name/g"  > $1/src/$1/Form/${name}Form.php
+        cat $HOME/tools/assets/zend_module_form_fieldset.php | sed -E "s/\#NAME\#/$1/g" | sed -E "s/\#FORM\#/$name/g" | sed -E "s/\#area\#/$area/g"  > $1/src/$1/Form/${name}Fieldset.php
+        mysql -uroot -p123456 -e "SELECT COLUMN_NAME as '' FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'cms_$table' AND table_schema = '$db'" INFORMATION_SCHEMA --batch |xargs -I {} bash -c 'process_fields "$@"' _ "$1" "$name" {}  \; 
+        cat $HOME/tools/assets/zend_module_form_fieldset_close.php >> $1/src/$1/Form/${name}Fieldset.php
+        mysql -uroot -p123456 -e "SELECT COLUMN_NAME as '' FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = 'cms_$table' AND table_schema = '$db'" INFORMATION_SCHEMA --batch |xargs -I {} bash -c 'process_validation "$@"' _ "$1" "$name" {}  \; 
+        echo "                );" >> $1/src/$1/Form/${name}Fieldset.php
+        echo "    }" >> $1/src/$1/Form/${name}Fieldset.php
+        echo "}" >> $1/src/$1/Form/${name}Fieldset.php  
+    fi;
+
+    echo "Deseja criar a View?[s/n]";
+    read c;
+    if [ "$c" == "s" ]; 
+    then
+        echo "nome da pasta da view(ex: site-users)";
+        read v;
+        cat $HOME/tools/assets/module_view/edit.phtml | sed -E "s/\#name\#/$view/g" | sed -E "s/\#view\#/$v/g" > $1/view/$view/$v/edit.phtml
+        cat $HOME/tools/assets/module_view/form.phtml | sed -E "s/\#name\#/$view/g" | sed -E "s/\#view\#/$v/g" | sed -E "s/\#FORM\#/$area/g" > $1/view/$view/$v/form.phtml
+        cat $HOME/tools/assets/module_view/index.phtml | sed -E "s/\#name\#/$view/g" | sed -E "s/\#view\#/$v/g" > $1/view/$view/$v/index.phtml
+        cat $HOME/tools/assets/module_view/list.phtml | sed -E "s/\#name\#/$view/g" | sed -E "s/\#view\#/$v/g" > $1/view/$view/$v/list.phtml
+        cat $HOME/tools/assets/module_view/new.phtml | sed -E "s/\#name\#/$view/g" | sed -E "s/\#view\#/$v/g" > $1/view/$view/$v/new.phtml
+        cat $HOME/tools/assets/module_view/pagination.phtml | sed -E "s/\#name\#/$view/g" | sed -E "s/\#view\#/$v/g" > $1/view/$view/$v/pagination.phtml
+        cat $HOME/tools/assets/module_view/search.phtml | sed -E "s/\#name\#/$view/g" | sed -E "s/\#view\#/$v/g" > $1/view/$view/$v/search.phtml
+        cat $HOME/tools/assets/module_view/table.phtml | sed -E "s/\#name\#/$view/g" | sed -E "s/\#view\#/$v/g" > $1/view/$view/$v/table.phtml
+    fi;
+
+done;
+
+
+
