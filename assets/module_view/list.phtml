@@ -15,7 +15,7 @@ echo $this->partial('base/side-menu.phtml',
 
     <?php echo $this->partial('base/message.phtml', array('messages'=>$messages)) ?>
 
-<?php echo $this->partial('#name#/#view#/action-menu.phtml', 
+<?php echo $this->partial('base/action-menu.phtml', 
                                array('module'   => $module,
                                      'areaName' => $areaName,
                                      'action'   => $action)) ?>
