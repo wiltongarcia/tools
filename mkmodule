@@ -100,6 +100,7 @@ do
     then
         echo "nome da pasta da view(ex: site-users)";
         read v;
+        mkdir -p $1/view/$view/$v;
         cat $HOME/tools/assets/module_view/edit.phtml | sed -E "s/\#name\#/$view/g" | sed -E "s/\#view\#/$v/g" > $1/view/$view/$v/edit.phtml
         cat $HOME/tools/assets/module_view/form.phtml | sed -E "s/\#name\#/$view/g" | sed -E "s/\#view\#/$v/g" | sed -E "s/\#FORM\#/$area/g" > $1/view/$view/$v/form.phtml
         cat $HOME/tools/assets/module_view/index.phtml | sed -E "s/\#name\#/$view/g" | sed -E "s/\#view\#/$v/g" > $1/view/$view/$v/index.phtml

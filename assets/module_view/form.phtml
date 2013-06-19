@@ -1,0 +1,50 @@
+<?php 
+$this->form->prepare();
+$form = $this->form->get('#FORM#');
+?>
+<div >
+    <legend><?php echo $this->translate((($action==='edit')? 'edit': 'add') . 'Item') ?></legend>
+    <?php 
+    echo 
+        $this->form()->openTag($this->form
+                                    ->setAttribute('class','form-horizontal'));
+
+                            
+        //$this->formHidden($this->form->get('csrf'));
+
+        //se existir o elemento id ele printa 
+        if ($form->has('id'))
+            echo $this->formHidden($form->get('id'));
+
+        $i = 1;
+        foreach ($form as $e) {
+            if ($e->getLabel()) {
+                $e->setAttributes(array('class'=>'input-xlarge',
+                                        'tabindex'=>$i));
+
+                echo '<div class="control-group">' . 
+                        $this->formLabel($e->setAttribute('class','control-label')) . 
+                        
+                        '<div class="controls">' . 
+                        ((in_array($e->getAttribute('type'),array('text','file','hidden','password')))?
+                        $this->formInput($e) : $this->formSelect($e)) . 
+                           '<span class="margin-left">' . $this->translate('infoAbout' . $e->getAttribute('id')) . '</span>
+                        </div>
+                    </div>';
+                $i++;
+            }
+            elseif ($e->getAttribute('type') == 'hidden' && $e->getAttribute('name') != 'id') {
+                echo $this->formInput($e);
+            }
+
+        }    
+
+        echo '<br />' . 
+            $this->formSubmit($this->form
+                               ->get('submit')
+                               ->setAttributes(array('class'=>'btn',
+                                                     'tabindex'=>$i++))) .
+
+        $this->form()->closeTag($this->form);
+    ?>
+</div>

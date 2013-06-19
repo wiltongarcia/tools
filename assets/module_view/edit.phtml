@@ -1,0 +1,17 @@
+<?php echo $this->partial('base/side-menu.phtml', 'application') ?>
+
+<!-- main-content -->
+<div class="main-content">
+
+    <?php echo $this->partial('#name#/#view#/action-menu.phtml', 
+                               array('module' => $module,
+                                     'action' => $action)) ?>
+    
+    <?php echo $this->partial('base/message.phtml',
+                              array('messages'=>$messages)) ?>
+
+    <?php echo $this->partial('#name#/#view#/form.phtml',
+                              array('form'   => $form, 
+                                    'action' => $action)) ?>
+</div>
+<!-- /main-content -->

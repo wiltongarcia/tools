@@ -1,0 +1,26 @@
+<?php echo $this->partial('base/side-menu.phtml') ?>
+
+<!-- main-content -->
+<div class="main-content">
+
+    <div class="hero-unit">
+        <h2><?php echo $this->translate($module) ?></h2>
+        <p>Resultados da busca pelo termo 
+        <b class="text-success"><?php echo $term ?></b></p>
+    </div>
+
+    <?php echo $this->partial('#name#/#view#/action-menu.phtml', 
+                               array('module'   => $module,
+                                     'term'     => $term,
+                                     'areaName' => $areaName,
+                                     'action'   => $action)) ?>
+
+    <?php echo $this->partial('base/table.phtml',
+                              array(
+                                'table'    => $table,
+                                'module'   => $module,
+                                'areaName' => $areaName,
+                                'action'   => $action
+                              )) ?>
+</div>
+<!-- /main-content -->

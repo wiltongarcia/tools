@@ -1,0 +1,49 @@
+<?php 
+$pageTerms = array();
+$pageTerms = array_merge($pageTerms, $_GET);
+?>    
+<?php if ($this->pageCount > 1): ?>
+    <!-- pagination -->
+    <div class="pagination pagination-centered">
+            <ul>
+            <!-- Previous page link -->
+                <?php if (isset($this->previous)): ?>
+                <?php $pageTerms['page'] = $this->previous; ?>
+                <li>
+                    <a href="<?php echo $this->url($this->route,
+                                                   array(),
+                                                   array('query' => $pageTerms)); ?>">
+                       &lt;
+                    </a>
+                </li>
+                <?php endif; ?>
+
+                <!-- Numbered page links -->
+                <?php foreach ($this->pagesInRange as $page): ?>
+                <?php $pageTerms['page'] = $page; ?>
+                    <li <?php echo ($page == $this->current)? 'class="active"' : false ?>>
+                        <a href="<?php echo $this->url($this->route, 
+                                                       array(),
+                                                       array('query' => $pageTerms)); ?>">
+                            <?php echo $page; ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+
+                <!-- Next page link -->
+                <?php if (isset($this->next)): ?>
+                <?php $pageTerms['page'] = $this->next ?>
+                <li>
+                    <a href="<?php echo $this->url($this->route, 
+                                                array(),
+                                                array('query'=>$pageTerms)); ?>">
+                    
+                       &gt;
+                    </a>
+                </li>
+                <?php endif; ?>
+         </ul>
+    </div>
+    <!-- /pagination --> 
+<?php endif; ?>
+

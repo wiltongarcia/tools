@@ -1,0 +1,45 @@
+<?php 
+$actionMenuItens = array(
+    'index' => array('label' => $this->translate('list'),
+                     'icon'  =>  'icon-list'),
+
+    'new' => array('label' => $this->translate('new'),
+                   'icon' => 'icon-list-alt'),
+
+    'export-to-excel' => array('label' => $this->translate('export'),
+                      'icon'  => 'icon-download-alt')
+);
+?>      
+<!-- action bar -->
+            <div class="navbar">
+              <div class="navbar-inner">
+                <div class="container">
+                 <div class="nav-collapse">
+                    <ul class="nav">
+
+                      <?php foreach ($actionMenuItens as $k=>$v): ?>
+                      <li <?php echo ($k === $this->action)? 'class="active"': '' ?>>
+                        <a href="<?php echo $this->url($this->areaName, 
+                                                       array('action'=>$k)) ?>">
+                            <i class="<?php echo $v['icon'] ?> icon-white"></i>
+                            <?php echo $this->translate($v['label']) ?>
+                        </a>
+                      </li>
+                      <?php endforeach ?>
+
+                    </ul>
+
+                  </div><!-- /.nav-collapse -->
+                     <form class="navbar-search pull-right"  method="get"
+                           action="<?php echo $this->url($this->areaName,
+                                                         array('action'=>'search')) ?>">
+
+                      <input type="text" class="search-query span2" name="term"
+                        placeholder="<?php echo $this->translate('search') ?>"  
+                        value="<?php echo (isset($this->term))? $this->term : false ?>" />
+                    </form> 
+                </div>
+              </div><!-- /navbar-inner -->
+            </div>
+    <!-- /action bar -->
+              
