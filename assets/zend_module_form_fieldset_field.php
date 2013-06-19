@@ -6,4 +6,7 @@
                 'id'        => '#NAME#',
                 'type'      => 'text',
             ),
+            'options' => array(
+                'label' => '#NAME#',
+            ), 
         )); 
